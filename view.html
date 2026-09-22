@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Una Sorpresa Especial 🌼</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0d0f18 0%, #1a1c2e 50%, #2a1b3d 100%);
+      --accent-gold: #ffd700;
+      --accent-yellow: #f1c40f;
+      --soft-glow: rgba(255, 215, 0, 0.4);
+      --card-glass: rgba(255, 255, 255, 0.12);
+      --card-border: rgba(255, 215, 0, 0.3);
+      --text-light: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-light);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Canvas para partículas interactivas */
+    #particle-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Overlay de Apertura / Sobre 3D */
+    .intro-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 15, 0.92);
+      backdrop-filter: blur(15px);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      cursor: pointer;
+    }
+
+    .intro-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .envelope-container {
+      position: relative;
+      width: 260px;
+      height: 180px;
+      background: #e0a96d;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px var(--soft-glow);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform-style: preserve-3d;
+      animation: floatEnvelope 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatEnvelope {
+      0% { transform: translateY(0) rotate(-2deg); }
+      100% { transform: translateY(-15px) rotate(2deg); }
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 130px solid transparent;
+      border-right: 130px solid transparent;
+      border-top: 100px solid #c89255;
+      transform-origin: top;
+      transition: transform 0.6s ease;
+      z-index: 3;
+    }
+
+    .seal-button {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #ffd700, #f39c12);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.8rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+      z-index: 4;
+      animation: pulseSeal 1.5s infinite;
+    }
+
+    @keyframes pulseSeal {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 15px var(--accent-gold); }
+      50% { transform: scale(1.1); box-shadow: 0 0 30px var(--accent-gold); }
+    }
+
+    .intro-text {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      color: #ffeaa7;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    /* Tarjeta Principal Glassmorphism */
+    .card-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 90%;
+      max-width: 400px;
+      opacity: 0;
+      transform: scale(0.8) translateY(30px);
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .card-wrapper.visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    .card {
+      background: var(--card-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
+                  inset 0 0 20px rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 215, 0, 0.15);
+      color: var(--accent-gold);
+      padding: 6px 18px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      border: 1px solid var(--card-border);
+    }
+
+    h1 {
+      font-size: 1.7rem;
+      background: linear-gradient(135deg, #ffffff, #ffd700);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    p.subtitle {
+      font-size: 0.9rem;
+      color: #d1d8e0;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Carrusel de Fotos con Marco Holográfico */
+    .carousel-container {
+      position: relative;
+      width: 210px;
+      height: 210px;
+      margin: 0 auto 1.5rem auto;
+    }
+
+    .carousel-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      padding: 5px;
+      background: linear-gradient(135deg, #ffd700, #f39c12, #ff7675);
+      box-shadow: 0 0 30px var(--soft-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-slides {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid #0d0f18;
+    }
+
+    .carousel-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+      transform: scale(1.05);
+    }
+
+    .carousel-slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Botones de navegación del carrusel */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1rem;
+      z-index: 5;
+      transition: all 0.3s ease;
+    }
+
+    .carousel-btn:hover {
+      background: var(--accent-gold);
+      color: #000;
+    }
+
+    .carousel-btn.prev { left: -12px; }
+    .carousel-btn.next { right: -12px; }
+
+    /* Puntos de navegación */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: -10px;
+      margin-bottom: 1.2rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: var(--accent-gold);
+      width: 20px;
+      border-radius: 10px;
+    }
+
+    /* Mensaje Dedicatoria */
+    .message-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      padding: 1.2rem;
+      border-radius: 18px;
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .message-box h3 {
+      color: var(--accent-gold);
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .message-box p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #e1e1e1;
+      font-style: italic;
+    }
+
+    /* Botones de Control Flotantes */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 1rem;
+    }
+
+    .btn-control {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-control:hover {
+      background: rgba(255, 215, 0, 0.25);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Canvas de partículas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Pantalla de bienvenida (Sobre 3D) -->
+  <div class="intro-overlay" id="intro-overlay">
+    <div class="envelope-container">
+      <div class="envelope-flap"></div>
+      <div class="seal-button">🌼</div>
+    </div>
+    <div class="intro-text">Toca para abrir tu sorpresa</div>
+  </div>
+
+  <!-- Tarjeta Principal -->
+  <div class="card-wrapper" id="card-wrapper">
+    <div class="card">
+      <span class="badge">Un Detalle Especial</span>
+      <h1>¡Flores Amarillas! 🌻</h1>
+      <p class="subtitle">Pensado para ti con mucho cariño</p>
+
+      <!-- Carrusel de fotos -->
+      <div class="carousel-container">
+        <button class="carousel-btn prev" id="prev-btn">❮</button>
+        <div class="carousel-frame">
+          <div class="carousel-slides">
+            <div class="carousel-slide active"><img src="IMG-20260205-WA0024.jpg" alt="Foto 1"></div>
+            <div class="carousel-slide"><img src="IMG_20260508_203955213.jpg" alt="Foto 2"></div>
+            <div class="carousel-slide"><img src="WhatsApp Image 2026-09-22 at 7.45.49 AM.jpeg" alt="Foto 3"></div>
+          </div>
+        </div>
+        <button class="carousel-btn next" id="next-btn">❯</button>
+      </div>
+
+      <!-- Puntos del carrusel -->
+      <div class="carousel-dots" id="carousel-dots">
+        <span class="dot active" data-index="0"></span>
+        <span class="dot" data-index="1"></span>
+        <span class="dot" data-index="2"></span>
+      </div>
+
+      <!-- Dedicatoria -->
+      <div class="message-box">
+        <h3>✨ Para ti ✨</h3>
+        <p>
+          "Es un poco tarde, yo lo se, pero es mejor tarde q nunca. Siempre te he demostrado lo mucho q me importas, 
+          que cada paso q des, siempre estare ahi, la cancion de fondo se llama "TODO EN MI VIDA", Son los sentimientos y el amor de El principito
+          hacia lo mas importante que tiene, su rosa, y este dia esta cancion es para ti, porque eres Todo en mi vida"
+        </p>
+      </div>
+
+      <!-- Botones interactivos -->
+      <div class="controls">
+        <button class="btn-control" id="toggle-music">🎵 Pausar Música</button>
+        <button class="btn-control" id="burst-flowers">🌼 Lanzar Flores</button>
+      </div>
+
+      <!-- Audio oculto -->
+      <audio id="bg-music" loop style="display: none;">
+        <source src="TODO EN MI VIDA.mp3" type="audio/mpeg">
+      </audio>
+    </div>
+  </div>
+
+  <script>
+    const introOverlay = document.getElementById('intro-overlay');
+    const cardWrapper = document.getElementById('card-wrapper');
+    const audio = document.getElementById('bg-music');
+    const toggleMusicBtn = document.getElementById('toggle-music');
+    const burstFlowersBtn = document.getElementById('burst-flowers');
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let isPlaying = false;
+    let particles = [];
+    const emojis = ['🌼', '🌻', '✨', '💛', '🌸'];
+
+    // Lógica del Carrusel
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    let currentSlide = 0;
+    let slideInterval;
+
+    function showSlide(index) {
+      slides.forEach(slide => slide.classList.remove('active'));
+      dots.forEach(dot => dot.classList.remove('active'));
+      
+      currentSlide = (index + slides.length) % slides.length;
+      slides[currentSlide].classList.add('active');
+      dots[currentSlide].classList.add('active');
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    function startAutoSlide() {
+      slideInterval = setInterval(nextSlide, 3500);
+    }
+
+    function resetAutoSlide() {
+      clearInterval(slideInterval);
+      startAutoSlide();
+    }
+
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      nextSlide();
+      resetAutoSlide();
+    });
+
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      prevSlide();
+      resetAutoSlide();
+    });
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const index = parseInt(dot.getAttribute('data-index'));
+        showSlide(index);
+        resetAutoSlide();
+      });
+    });
+
+    // Ajustar tamaño de canvas
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Clase para partículas de flores
+    class FlowerParticle {
+      constructor(x, y, isBurst = false) {
+        this.x = x || Math.random() * canvas.width;
+        this.y = y || (isBurst ? canvas.height / 2 : canvas.height + 20);
+        this.emoji = emojis[Math.floor(Math.random() * emojis.length)];
+        this.size = Math.random() * 18 + 14;
+        
+        if (isBurst) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 8 + 3;
+          this.vx = Math.cos(angle) * speed;
+          this.vy = Math.sin(angle) * speed - 2;
+        } else {
+          this.vx = (Math.random() - 0.5) * 1.5;
+          this.vy = -Math.random() * 2 - 1;
+        }
+
+        this.rotation = Math.random() * 360;
+        this.vRot = (Math.random() - 0.5) * 4;
+        this.opacity = 1;
+        this.fade = Math.random() * 0.008 + 0.004;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.vRot;
+        this.opacity -= this.fade;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = Math.max(this.opacity, 0);
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.font = `${this.size}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.emoji, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    // Animación continua del canvas
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (Math.random() < 0.2) {
+        particles.push(new FlowerParticle());
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+        if (particles[i].opacity <= 0 || particles[i].y < -30) {
+          particles.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // Ráfaga masiva de flores
+    function createBurst(count = 40) {
+      for (let i = 0; i < count; i++) {
+        particles.push(new FlowerParticle(canvas.width / 2, canvas.height / 2, true));
+      }
+    }
+
+    // Abrir sobre e iniciar experiencia
+    introOverlay.addEventListener('click', () => {
+      introOverlay.classList.add('hidden');
+      cardWrapper.classList.add('visible');
+      
+      // Iniciar audio
+      audio.play().then(() => {
+        isPlaying = true;
+      }).catch(() => {});
+
+      // Iniciar cambio de fotos
+      startAutoSlide();
+
+      // Explosión de flores
+      createBurst(50);
+    });
+
+    // Control de audio
+    toggleMusicBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isPlaying) {
+        audio.pause();
+        toggleMusicBtn.innerText = '🎵 Reproducir Música';
+      } else {
+        audio.play();
+        toggleMusicBtn.innerText = '🎵 Pausar Música';
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // Botón para lanzar más flores
+    burstFlowersBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      createBurst(30);
+    });
+
+    // Generar partículas en toque o movimiento del cursor
+    window.addEventListener('pointermove', (e) => {
+      if (Math.random() < 0.3) {
+        particles.push(new FlowerParticle(e.clientX, e.clientY, true));
+      }
+    });
+  </script>
+</body>
+</html>
